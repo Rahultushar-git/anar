@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Chat</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 20px auto; }
+    #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; }
+    input { width: 80%; padding: 10px; }
+    button { padding: 10px; }
+  </style>
+</head>
+<body>
+  <h2>💬 Simple Chat</h2>
+  <div id="chat"></div>
+  <input id="msg" placeholder="Type message...">
+  <button onclick="send()">Send</button>
+
+  <script>
+    // Change this to your server URL later (for now it's local)
+    const ws = new WebSocket("ws://localhost:8080");
+
+    ws.onmessage = event => {
+      const div = document.getElementById("chat");
+      div.innerHTML += "<p>" + event.data + "</p>";
+      div.scrollTop = div.scrollHeight;
+    };
+
+    function send() {
+      const input = document.getElementById("msg");
+      ws.send(input.value);
+      document.getElementById("chat").innerHTML += "<p><b>You:</b> " + input.value + "</p>";
+      input.value = "";
+    }
+  </script>
+</body>
+</html>
