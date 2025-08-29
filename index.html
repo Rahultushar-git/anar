@@ -17,7 +17,7 @@
 
   <script>
     // Change this to your server URL later (for now it's local)
-    const ws = new WebSocket("ws://localhost:8080");
+    const ws = new WebSocket("https://chat-backend-31ox.onrender.com");
 
     ws.onmessage = event => {
       const div = document.getElementById("chat");
