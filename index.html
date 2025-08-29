@@ -16,20 +16,31 @@
   <button onclick="send()">Send</button>
 
   <script>
-    // Change this to your server URL later (for now it's local)
     const ws = new WebSocket("wss://anarbackend.onrender.com");
+    const chat = document.getElementById("chat");
+
+    function addMessage(html) {
+      chat.innerHTML += "<p>" + html + "</p>";
+
+      // 🚀 Keep only last 10 messages
+      while (chat.children.length > 10) {
+        chat.removeChild(chat.firstChild);
+      }
+
+      chat.scrollTop = chat.scrollHeight;
+    }
 
     ws.onmessage = event => {
-      const div = document.getElementById("chat");
-      div.innerHTML += "<p>" + event.data + "</p>";
-      div.scrollTop = div.scrollHeight;
+      addMessage(event.data);
     };
 
     function send() {
       const input = document.getElementById("msg");
-      ws.send(input.value);
-      document.getElementById("chat").innerHTML += "<p><b>You:</b> " + input.value + "</p>";
-      input.value = "";
+      if (input.value.trim() !== "") {
+        ws.send(input.value);
+        addMessage("<b>You:</b> " + input.value);
+        input.value = "";
+      }
     }
   </script>
 </body>
