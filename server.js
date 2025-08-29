@@ -44,6 +44,6 @@ wss.on('connection', (ws) => {
 
 // server will listen on port 3000 (or Render’s PORT)
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`🚀 Chat server running on port ${PORT}`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log("Server running on port " + PORT);
 });
