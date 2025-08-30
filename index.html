@@ -17,7 +17,7 @@
 
   <script>
     // Change this to your server URL later (for now it's local)
-    const ws = new WebSocket("ws://anar-aeou.onrender.com");
+    const ws = new WebSocket("wss://anar-aeou.onrender.com");
 
     ws.onmessage = event => {
       const div = document.getElementById("chat");
