@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Anar chat</title>
+  <title>ANAR</title>
   <style>
     body { font-family: Arial; max-width: 600px; margin: 20px auto; }
     #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; }
@@ -10,13 +10,13 @@
   </style>
 </head>
 <body>
-  <h2>💬 A New Anonymous Realm</h2>
+  <h2>Anar-A New Anonymous Realm</h2>
   <div id="chat"></div>
   <input id="msg" placeholder="Type message...">
   <button onclick="send()">Send</button>
+<a href="https://www.rahultushar-github.io/mandi/">Back</a>
 
   <script>
-    // Change this to your server URL later (for now it's local)
     const ws = new WebSocket("wss://anar-aeou.onrender.com");
 
     ws.onmessage = event => {
