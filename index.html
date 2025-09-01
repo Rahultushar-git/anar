@@ -11,6 +11,7 @@
     --chat-bg: #fafafa;
     --accent: #fbc531;
     --text: #0b1220;
+    --anon-text: #f1c40f; /* yellow */
   }
 
   html,body{height:100%;margin:0;background:#fff;font-family:Arial,Helvetica,sans-serif;color:var(--text)}
@@ -46,7 +47,6 @@
     gap:8px;
   }
 
-  /* row wrapper: aligns left or right */
   .message-row {
     display:flex;
     width:100%;
@@ -67,11 +67,11 @@
     gap:6px;
   }
 
-  .msg .label { font-weight:600; font-size:0.82rem; opacity:0.9; }
-  .msg .text { white-space:pre-wrap; } /* preserve occasional newlines */
+  .msg .label { font-weight:900; font-size:0.9rem; } /* more bold */
+  .msg .text { white-space:pre-wrap; }
 
   .msg.you { background:var(--you-bg); color:var(--text); }
-  .msg.anon { background:var(--anon-bg); color:var(--text); }
+  .msg.anon { background:var(--anon-bg); color:var(--anon-text); } /* yellow text */
 
   .input-area{
     display:flex;
@@ -108,7 +108,6 @@
     border-top:1px solid #e6e6e6;
   }
 
-  /* small screens: make bubbles slightly bigger width */
   @media (max-width:480px){
     .msg { max-width:88%; font-size:0.95rem; }
     .header { font-size:1rem; padding:12px; }
@@ -120,10 +119,8 @@
     <div class="header">💬 ANAR - A New Anonymous Realm</div>
     <div class="desc">Private chat with no login, no username, and no stored messages. Refresh to clear.</div>
 
-    <!-- chat area -->
     <div id="chat" aria-live="polite" role="log"></div>
 
-    <!-- input -->
     <div class="input-area">
       <input id="msg" type="text" placeholder="Type a message..." autocomplete="off" enterkeyhint="send" />
       <button id="sendBtn">Send</button>
@@ -133,7 +130,6 @@
   </div>
 
 <script>
-  // small helper to safely add messages (avoids innerHTML/XSS issues)
   function addMessage(text, type = 'anon', label = 'Anonymous') {
     const chat = document.getElementById('chat');
 
@@ -149,87 +145,43 @@
 
     const txt = document.createElement('div');
     txt.className = 'text';
-    txt.textContent = text; // use textContent to ensure it's always visible (no HTML parsing)
+    txt.textContent = text;
 
     bubble.appendChild(lbl);
     bubble.appendChild(txt);
     row.appendChild(bubble);
     chat.appendChild(row);
 
-    // auto-scroll
     chat.scrollTop = chat.scrollHeight;
   }
 
-  // WebSocket setup (same URL you used)
   const WS_URL = 'wss://anar-aeou.onrender.com';
   let ws;
 
   function connect() {
-    try {
-      ws = new WebSocket(WS_URL);
-    } catch (err) {
-      console.error('WebSocket open error:', err);
-      addMessage('Unable to connect to server.', 'anon', 'System');
-      return;
-    }
+    ws = new WebSocket(WS_URL);
 
-    ws.addEventListener('open', () => {
-      console.log('ws open');
-      addMessage('Connected to server.', 'anon', 'System');
-    });
-
-    ws.addEventListener('message', (ev) => {
-      // incoming messages from others
-      // if your server sends JSON, parse accordingly; here we assume plain text
-      addMessage(String(ev.data), 'anon', 'Anonymous');
-    });
-
-    ws.addEventListener('close', () => {
-      console.log('ws closed');
-      addMessage('Disconnected from server.', 'anon', 'System');
-    });
-
-    ws.addEventListener('error', (e) => {
-      console.warn('ws error', e);
-      // do not spam user with errors
-    });
+    ws.addEventListener('open', () => addMessage('Connected to server.', 'anon', 'System'));
+    ws.addEventListener('message', (ev) => addMessage(String(ev.data), 'anon', 'Anonymous'));
+    ws.addEventListener('close', () => addMessage('Disconnected from server.', 'anon', 'System'));
   }
-
   connect();
 
-  // send helper (safely checks ws state)
   function send() {
     const input = document.getElementById('msg');
     const text = input.value.trim();
     if (!text) return;
 
-    // show locally
     addMessage(text, 'you', 'You');
-
-    // send if ws is open; otherwise show system note
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      try {
-        ws.send(text);
-      } catch (err) {
-        console.error('send failed', err);
-        addMessage('Message failed to send.', 'anon', 'System');
-      }
-    } else {
-      addMessage('Not connected — message not sent.', 'anon', 'System');
-    }
+    if (ws && ws.readyState === WebSocket.OPEN) ws.send(text);
 
     input.value = '';
     input.focus();
   }
 
   document.getElementById('sendBtn').addEventListener('click', send);
-
-  // Enter to send, allow Shift+Enter for newline if you want that later:
-  document.getElementById('msg').addEventListener('keydown', function(e){
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      send();
-    }
+  document.getElementById('msg').addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
   });
 </script>
 </body>
