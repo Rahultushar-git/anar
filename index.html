@@ -3,37 +3,76 @@
 <head>
   <title>ANAR</title>
   <style>
-    body { font-family: Arial; max-width: 600px; margin: 20px auto; }
-    #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; }
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
+    #chat { 
+      border: 1px solid #ccc; 
+      padding: 10px; 
+      height: 300px; 
+      overflow-y: auto; 
+      background: #fafafa;
+    }
+    .msg {
+      padding: 8px 12px;
+      margin: 5px 0;
+      border-radius: 12px;
+      max-width: 80%;
+      word-wrap: break-word;
+      display: inline-block;
+      clear: both;
+    }
+    .you {
+      background: #d0ebff;
+      float: right;
+      text-align: right;
+    }
+    .anon {
+      background: #e9ecef;
+      float: left;
+      text-align: left;
+    }
     input { width: 80%; padding: 10px; }
     button { padding: 10px; }
   </style>
 </head>
 <body>
-  <h2>💬Anar-A New Anonymous Realm</h2>
-   <p>Step into a truly private chatroom with no login, no username and no data stored. Anar doesn't track or record anything- once you refress the page, every message disappear forever. Only the people present see the conversation, making it a pure and secure space for real anonymity</p>
+  <h2>💬 ANAR - A New Anonymous Realm</h2>
+  <p>Step into a truly private chatroom with no login, no username, and no data stored.<br>
+  ANAR doesn’t track or record anything — once you refresh the page, every message disappears forever.<br>
+  Only the people present can see the conversation, making it a pure and secure space for real anonymity.</p>
+
   <div id="chat"></div>
-  <input id="msg" placeholder="Type message...">
+  <input id="msg" placeholder="Type a message...">
   <button onclick="send()">Send</button>
-<p>Made in 🌏 with ❤️</p>
-<a href="https://rahultushar-git.github.io/fosChat/">Back to main site</a>
+
+  <p>Made on 🌏 with ❤️</p>
+  <a href="https://rahultushar-git.github.io/fosChat/">Back to main site</a>
 
   <script>
     const ws = new WebSocket("wss://anar-aeou.onrender.com");
 
     ws.onmessage = event => {
       const div = document.getElementById("chat");
-      div.innerHTML += "<p>" + event.data + "</p>";
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "msg anon";
+      msgDiv.innerHTML = "<b>Anonymous:</b> " + event.data;
+      div.appendChild(msgDiv);
       div.scrollTop = div.scrollHeight;
     };
 
     function send() {
       const input = document.getElementById("msg");
+      if (input.value.trim() === "") return; // prevent empty messages
       ws.send(input.value);
-      document.getElementById("chat").innerHTML += "<p><b>You:</b> " + input.value + "</p>";
+
+      const div = document.getElementById("chat");
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "msg you";
+      msgDiv.innerHTML = "<b>You:</b> " + input.value;
+      div.appendChild(msgDiv);
+
       input.value = "";
+      div.scrollTop = div.scrollHeight;
     }
   </script>
 </body>
 </html>
-
