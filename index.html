@@ -1,163 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ANAR Chat</title>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ANAR — Anonymous Chat</title>
+<style>
+  :root{
+    --you-bg: #d7ecff;
+    --anon-bg: #eef1f3;
+    --chat-bg: #fafafa;
+    --accent: #8557B6; /* send button color */
+  }
 
-    body{display:flex;flex-direction:column;height:100vh;background:#f5f5f5;}
+  html,body{height:100%;margin:0;background:#fff;font-family:Arial,Helvetica,sans-serif;color:#0b1220;}
+  .app {height:100vh;display:flex;flex-direction:column;}
 
-    /* HEADER */
-    .header{
-      background:linear-gradient(90deg,#8557B6,#6b3f99);
-      padding:16px 24px;
-      color:#000;
-      font-weight:700;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      min-height:72px;
-    }
-    .header-left{display:flex;align-items:center;gap:10px;}
-    .logo{width:180px;height:auto;}
-    .coffee-btn{
-      background:#fff;
-      color:#8557B6;
-      padding:8px 14px;
-      border-radius:20px;
-      text-decoration:none;
-      font-size:0.9rem;
-      font-weight:600;
-      box-shadow:0 2px 4px rgba(0,0,0,0.15);
-    }
+  /* === header style === */
+  .header{
+    background: linear-gradient(90deg,#8557B6,#6b3f99); /* purple gradient */
+    padding:16px 24px;
+    color:#000; /* header text color */
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    min-height:72px;
+  }
 
-    /* CHATBOX */
-    .chatbox{flex:1;padding:12px;overflow-y:auto;}
-    .msg{margin:6px 0;padding:10px 14px;border-radius:12px;max-width:75%;word-wrap:break-word;}
-    .you{background:#8557B6;color:#fff;margin-left:auto;}
-    .other{background:#e6e6e6;color:#000;margin-right:auto;}
+  .header-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
 
-    /* INPUT AREA */
-    .input-area{
-      display:flex;
-      gap:8px;
-      padding:10px;
-      border-top:1px solid #ddd;
-      background:#fff;
-    }
-    .input-area #username{
-      width:90px;
-      padding:10px 8px;
-      border-radius:12px;
-      border:1px solid #ccc;
-      font-size:0.9rem;
-      text-align:center;
-    }
-    .input-area input[type="text"]{
-      flex:1;
-      padding:10px;
-      border-radius:12px;
-      border:1px solid #ccc;
-      font-size:1rem;
-    }
-    .input-area button{
-      background:#8557B6;
-      border:none;
-      padding:10px 16px;
-      border-radius:18px;
-      cursor:pointer;
-      font-weight:700;
-      color:#fff;
-    }
+  .logo{
+    width:150px; /* responsive width */
+    height:auto; /* keep aspect ratio */
+    object-fit:contain;
+    border-radius:8px;
+  }
 
-    /* FOOTER */
-    .footer{
-      text-align:center;
-      padding:8px 10px;
-      font-size:0.85rem;
-      background:#b3b3b3;
-      border-top:1px solid #e6e6e6;
-      color:#444;
-    }
+  .coffee-btn{
+    background:#fff;
+    color:#000;
+    text-decoration:none;
+    padding:8px 16px;
+    border-radius:20px;
+    font-weight:600;
+    font-size:0.95rem;
+    box-shadow:0 2px 5px rgba(0,0,0,0.15);
+    transition: background 0.2s;
+  }
+  .coffee-btn:hover{
+    background:#f5f5f5;
+  }
 
-    /* MOBILE FIX */
-    @media(max-width:480px){
-      .msg{max-width:88%;font-size:0.95rem;}
-      .header{
-        flex-direction:row;
-        gap:8px;
-        min-height:auto;
-        padding:12px;
-        justify-content:space-between;
-        align-items:center;
-      }
-      .logo{width:120px;}
-      .coffee-btn{padding:6px 12px;font-size:0.9rem;}
+  .desc{
+    padding:10px 16px;
+    text-align:center;
+    font-size:0.95rem;
+    color:#333;
+    border-bottom:1px solid #eee;
+  }
+
+  #chat {
+    flex:1;
+    padding:16px;
+    background:var(--chat-bg);
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .message-row {
+    display:flex;
+    width:100%;
+  }
+  .message-row.you { justify-content:flex-end; }
+  .message-row.anon { justify-content:flex-start; }
+
+  .msg {
+    max-width:78%;
+    word-break:break-word;
+    border-radius:14px;
+    padding:10px 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    font-size:0.95rem;
+    line-height:1.3;
+    color:#0b1220; /* chat text color */
+  }
+
+  .msg strong { font-weight:900; }
+
+  .msg.you { background:var(--you-bg); }
+  .msg.anon { background:var(--anon-bg); }
+
+  .input-area{
+    display:flex;
+    gap:8px;
+    padding:10px;
+    border-top:1px solid #e6e6e6;
+    align-items:center;
+    background:#fff;
+  }
+
+  .input-area input{
+    flex:1;
+    padding:10px 12px;
+    border-radius:20px;
+    border:1px solid #ccc;
+    outline:none;
+    font-size:1rem;
+  }
+
+  .input-area button{
+    background:var(--accent);
+    border:none;
+    padding:10px 16px;
+    border-radius:18px;
+    cursor:pointer;
+    font-weight:700;
+    color:#fff; /* button text white */
+  }
+
+  .footer{
+    text-align:center;
+    padding:8px 10px;
+    font-size:0.85rem;
+    background:#b3b3b3; /* darker gray */
+    border-top:1px solid #e6e6e6;
+    color:#444;
+  }
+
+  /* === mobile adjustments === */
+  @media (max-width:480px){
+    .msg { max-width:88%; font-size:0.95rem; }
+    
+    .header { 
+        flex-direction: row; /* keep logo left, button right */
+        gap:8px; 
+        min-height:auto; 
+        padding:12px; 
+        justify-content:space-between; 
+        align-items:center; 
     }
-  </style>
+    
+    .header-left{ 
+        justify-content:flex-start; 
+    }
+    
+    .coffee-btn{ padding:6px 12px; font-size:0.9rem; }
+    .logo{width:120px;} /* smaller on mobile */
+  }
+</style>
 </head>
 <body>
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-left">
-      <img src="logo.png" alt="Logo" class="logo">
+  <div class="app">
+    <div class="header">
+      <div class="header-left">
+        <img src="logo.png" alt="ANAR Logo" class="logo">
+      </div>
+      <a class="coffee-btn" href="https://buymeacoffee.com/rahultushar" target="_blank">☕ Buy me a coffee</a>
     </div>
-    <a href="https://www.buymeacoffee.com/" target="_blank" class="coffee-btn">Buy me a coffee</a>
+
+    <div class="desc">Private chat with no login, no username, and no stored messages. Refresh to clear.</div>
+
+    <div id="chat" aria-live="polite" role="log"></div>
+
+    <div class="input-area">
+      <input id="msg" type="text" placeholder="Type a message..." autocomplete="off" enterkeyhint="send" />
+      <button id="sendBtn">Send</button>
+    </div>
+
+    <div class="footer">Made on 🌏 with ❤️</div>
   </div>
 
-  <!-- CHATBOX -->
-  <div id="chat" class="chatbox"></div>
-
-  <!-- INPUT AREA -->
-  <div class="input-area">
-    <input id="username" type="text" maxlength="8" value="Anonymous" placeholder="Name">
-    <input id="msg" type="text" placeholder="Type a message..." autocomplete="off" enterkeyhint="send">
-    <button id="sendBtn">Send</button>
-  </div>
-
-  <!-- FOOTER -->
-  <div class="footer">
-    © 2025 ANAR Chat — Stay Anonymous, Stay Connected
-  </div>
-
-  <!-- SCRIPT -->
-  <script>
+<script>
+  function addMessage(text, type = 'anon') {
     const chat = document.getElementById('chat');
-    const sendBtn = document.getElementById('sendBtn');
-    const msgInput = document.getElementById('msg');
-    const usernameInput = document.getElementById('username');
 
-    function addMessage(text, type){
-      const div = document.createElement('div');
-      div.className = 'msg ' + type;
-      div.innerHTML = text;
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
-    }
+    const row = document.createElement('div');
+    row.className = 'message-row ' + (type === 'you' ? 'you' : 'anon');
 
-    function send(){
-      const text = msgInput.value.trim();
-      const username = usernameInput.value.trim() || "Anonymous";
-      if(!text) return;
+    const bubble = document.createElement('div');
+    bubble.className = 'msg ' + (type === 'you' ? 'you' : 'anon');
 
-      const msgToSend = `<strong>${username}:</strong> ${text}`;
-      addMessage(msgToSend, 'you');
+    const who = type === 'you' ? 'You' : 'Anonymous';
+    bubble.innerHTML = `<strong>${who}:</strong> ${text}`;
 
-      // Send to server (if WebSocket is connected)
-      if(window.ws && ws.readyState === WebSocket.OPEN){
-        ws.send(msgToSend);
-      }
+    row.appendChild(bubble);
+    chat.appendChild(row);
 
-      msgInput.value = '';
-      msgInput.focus();
-    }
+    chat.scrollTop = chat.scrollHeight;
+  }
 
-    sendBtn.addEventListener('click', send);
-    msgInput.addEventListener('keypress', e=>{
-      if(e.key==='Enter') send();
-    });
-  </script>
+  const WS_URL = 'wss://anar-aeou.onrender.com';
+  let ws;
+
+  function connect() {
+    ws = new WebSocket(WS_URL);
+
+    ws.addEventListener('open', () => addMessage('Connected to server.', 'anon'));
+    ws.addEventListener('message', (ev) => addMessage(String(ev.data), 'anon'));
+    ws.addEventListener('close', () => addMessage('Disconnected from server.', 'anon'));
+  }
+  connect();
+
+  function send() {
+    const input = document.getElementById('msg');
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage(text, 'you');
+    if (ws && ws.readyState === WebSocket.OPEN) ws.send(text);
+
+    input.value = '';
+    input.focus();
+  }
+
+  document.getElementById('sendBtn').addEventListener('click', send);
+  document.getElementById('msg').addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+</script>
 </body>
 </html>
