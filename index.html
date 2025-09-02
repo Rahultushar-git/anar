@@ -9,24 +9,36 @@
     --you-bg: #d7ecff;
     --anon-bg: #eef1f3;
     --chat-bg: #fafafa;
-    --accent: #8557B6;
+    --accent: #8557B6; /* send button color */
   }
 
   html,body{height:100%;margin:0;background:#fff;font-family:Arial,Helvetica,sans-serif;color:#0b1220;}
   .app {height:100vh;display:flex;flex-direction:column;}
 
+  /* === header style === */
   .header{
-    background: linear-gradient(90deg,#8557B6,#6b3f99);
+    background: linear-gradient(90deg,#8557B6,#6b3f99); /* purple gradient */
     padding:16px 24px;
-    color:#000;
+    color:#000; /* header text color */
     font-weight:700;
     display:flex;
     align-items:center;
     justify-content:space-between;
     min-height:72px;
   }
-  .header-left{ display:flex; align-items:center; gap:12px; }
-  .logo{ width:150px; height:auto; object-fit:contain; border-radius:8px; }
+
+  .header-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .logo{
+    width:150px; /* responsive width */
+    height:auto; /* keep aspect ratio */
+    object-fit:contain;
+    border-radius:8px;
+  }
 
   .coffee-btn{
     background:#fff;
@@ -39,7 +51,9 @@
     box-shadow:0 2px 5px rgba(0,0,0,0.15);
     transition: background 0.2s;
   }
-  .coffee-btn:hover{ background:#f5f5f5; }
+  .coffee-btn:hover{
+    background:#f5f5f5;
+  }
 
   .desc{
     padding:10px 16px;
@@ -48,27 +62,6 @@
     color:#333;
     border-bottom:1px solid #eee;
   }
-
-  /* === status bar styles === */
-  #statusBar {
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    font-size:0.7rem;
-    font-weight:400;
-    padding:4px;
-    border-bottom:1px solid #eee;
-    color:#555;
-  }
-  .status-dot {
-    width:8px; height:8px;
-    border-radius:50%;
-    display:inline-block;
-  }
-  .connected   { background:#4caf50; } /* green */
-  .connecting  { background:#ff9800; } /* orange */
-  .disconnected{ background:#f44336; } /* red */
 
   #chat {
     flex:1;
@@ -80,7 +73,10 @@
     gap:8px;
   }
 
-  .message-row { display:flex; width:100%; }
+  .message-row {
+    display:flex;
+    width:100%;
+  }
   .message-row.you { justify-content:flex-end; }
   .message-row.anon { justify-content:flex-start; }
 
@@ -92,9 +88,11 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     font-size:0.95rem;
     line-height:1.3;
-    color:#0b1220;
+    color:#0b1220; /* chat text color */
   }
+
   .msg strong { font-weight:900; }
+
   .msg.you { background:var(--you-bg); }
   .msg.anon { background:var(--anon-bg); }
 
@@ -106,6 +104,7 @@
     align-items:center;
     background:#fff;
   }
+
   .input-area input{
     flex:1;
     padding:10px 12px;
@@ -114,6 +113,7 @@
     outline:none;
     font-size:1rem;
   }
+
   .input-area button{
     background:var(--accent);
     border:none;
@@ -121,23 +121,37 @@
     border-radius:18px;
     cursor:pointer;
     font-weight:700;
-    color:#fff;
+    color:#fff; /* button text white */
   }
 
   .footer{
     text-align:center;
     padding:8px 10px;
     font-size:0.85rem;
-    background:#D0BEF4;
+    background:#D0BEF4; /* darker gray */
     border-top:1px solid #e6e6e6;
     color:#444;
   }
 
+  /* === mobile adjustments === */
   @media (max-width:480px){
     .msg { max-width:88%; font-size:0.95rem; }
-    .header{ flex-direction: row; gap:8px; min-height:auto; padding:12px; justify-content:space-between; align-items:center; }
-    .logo{width:120px;}
+    
+    .header { 
+        flex-direction: row; /* keep logo left, button right */
+        gap:8px; 
+        min-height:auto; 
+        padding:12px; 
+        justify-content:space-between; 
+        align-items:center; 
+    }
+    
+    .header-left{ 
+        justify-content:flex-start; 
+    }
+    
     .coffee-btn{ padding:6px 12px; font-size:0.9rem; }
+    .logo{width:120px;} /* smaller on mobile */
   }
 </style>
 </head>
@@ -150,14 +164,8 @@
       <a class="coffee-btn" href="https://buymeacoffee.com/rahultushar" target="_blank">☕ Buy me a coffee</a>
     </div>
     
-    <div class="desc">Anar - A New Anonymous Realm.</div>
+<div class="desc">Anar-A New Anonymous Realm .</div>
     <div class="desc">Private chat with no login, no username, and no stored messages. Refresh to clear.</div>
-
-    <!-- Status Bar -->
-    <div id="statusBar">
-      <span class="status-dot disconnected"></span>
-      <span id="statusText">Disconnected</span>
-    </div>
 
     <div id="chat" aria-live="polite" role="log"></div>
 
@@ -172,46 +180,31 @@
 <script>
   function addMessage(text, type = 'anon') {
     const chat = document.getElementById('chat');
+
     const row = document.createElement('div');
     row.className = 'message-row ' + (type === 'you' ? 'you' : 'anon');
+
     const bubble = document.createElement('div');
     bubble.className = 'msg ' + (type === 'you' ? 'you' : 'anon');
+
     const who = type === 'you' ? 'You' : 'Anonymous';
-    bubble.innerHTML = <strong>${who}:</strong> ${text};
+    bubble.innerHTML = `<strong>${who}:</strong> ${text}`;
+
     row.appendChild(bubble);
     chat.appendChild(row);
+
     chat.scrollTop = chat.scrollHeight;
   }
 
   const WS_URL = 'wss://anar-aeou.onrender.com';
   let ws;
 
-  function updateStatus(state) {
-    const dot = document.querySelector('.status-dot');
-    const text = document.getElementById('statusText');
-
-    dot.className = 'status-dot'; // reset classes
-
-    if (state === 'connected') {
-      dot.classList.add('connected');
-      text.textContent = 'Connected';
-    } else if (state === 'connecting') {
-      dot.classList.add('connecting');
-      text.textContent = 'Connecting...';
-    } else {
-      dot.classList.add('disconnected');
-      text.textContent = 'Disconnected';
-    }
-  }
-
   function connect() {
-    updateStatus('connecting');
     ws = new WebSocket(WS_URL);
 
-    ws.addEventListener('open', () => updateStatus('connected'));
+    ws.addEventListener('open', () => addMessage('Connected to server.', 'anon'));
     ws.addEventListener('message', (ev) => addMessage(String(ev.data), 'anon'));
-    ws.addEventListener('close', () => updateStatus('disconnected'));
-    ws.addEventListener('error', () => updateStatus('disconnected'));
+    ws.addEventListener('close', () => addMessage('Disconnected from server.', 'anon'));
   }
   connect();
 
@@ -219,8 +212,10 @@
     const input = document.getElementById('msg');
     const text = input.value.trim();
     if (!text) return;
+
     addMessage(text, 'you');
     if (ws && ws.readyState === WebSocket.OPEN) ws.send(text);
+
     input.value = '';
     input.focus();
   }
