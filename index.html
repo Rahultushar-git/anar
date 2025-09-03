@@ -212,7 +212,11 @@
     row.className = 'message-row ' + (type === 'you' ? 'you' : 'anon');
     const bubble = document.createElement('div');
     bubble.className = 'msg ' + (type === 'you' ? 'you' : 'anon');
-    bubble.innerHTML = `<strong>${alias}:</strong> ${text}`;
+
+    // Always show "You" on your screen
+    const who = (type === 'you') ? "You" : (alias || "Anonymous");
+
+    bubble.innerHTML = `<strong>${who}:</strong> ${text}`;
     row.appendChild(bubble);
     chat.appendChild(row);
     chat.scrollTop = chat.scrollHeight;
@@ -279,10 +283,10 @@
     const text = input.value.trim();
     if (!text) return;
 
-    // Show locally
-    addMessage(text, userAlias || "You", 'you');
+    // Show locally as "You"
+    addMessage(text, "You", 'you');
 
-    // Send to others
+    // Send to others with alias
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({
         alias: userAlias || "Anonymous",
