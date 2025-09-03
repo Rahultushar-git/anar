@@ -95,13 +95,15 @@
       align-items:center;
     }
     .alias-input{
-      flex:0 0 15%;   /* even smaller */
-      max-width:80px;
-      padding:8px 10px;
-      border-radius:14px;
+      flex:0 0 10%;   /* smaller */
+      max-width:60px; /* tighter */
+      min-width:50px; /* never too small */
+      padding:6px 8px;
+      border-radius:12px;
       border:1px solid #ccc;
       outline:none;
-      font-size:0.8rem;
+      font-size:0.75rem;
+      text-align:center;
     }
     .msg-input{
       flex:1;
@@ -130,7 +132,7 @@
     /* Mobile fixes */
     @media (max-width:480px){
       .logo{width:120px;}
-      .alias-input{flex:0 0 18%; max-width:70px;}
+      .alias-input{flex:0 0 15%; max-width:55px; font-size:0.7rem;}
       .msg-input{font-size:0.9rem;}
       .input-area button{padding:8px 12px;font-size:0.9rem;}
     }
