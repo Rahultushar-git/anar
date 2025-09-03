@@ -1,0 +1,12 @@
+# Android/IntelliJ/Gradle junk files
+.gradle/
+.idea/
+build/
+*/build/
+
+# Local config
+local.properties
+*.iml
+
+# Logs
+*.log
