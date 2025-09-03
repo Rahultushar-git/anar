@@ -82,43 +82,44 @@
       font-size:0.95rem;
       line-height:1.3;
     }
-    .msg.you{ 
-      background:#D0BEF4; 
-      color:#000;
-    }
-    .msg.anon{ 
-      background:#8557B6; 
-      color:#fff;
-    }
+    .msg.you{ background:#D0BEF4; color:#000; }
+    .msg.anon{ background:#8557B6; color:#fff; }
 
     /* Input area */
     .input-area{
       display:flex;
-      gap:8px;
+      gap:6px;
       padding:10px;
       border-top:1px solid #e6e6e6;
       background:#fff;
+      align-items:center;
     }
     .alias-input{
-      flex:0 0 20%;   /* ~¼ of msg input */
-      max-width:120px;
-      padding:10px 12px;
-      border-radius:20px;
+      flex:0 0 15%;   /* even smaller */
+      max-width:80px;
+      padding:8px 10px;
+      border-radius:14px;
       border:1px solid #ccc;
       outline:none;
-      font-size:0.9rem;
+      font-size:0.8rem;
     }
     .msg-input{
       flex:1;
-      padding:10px 12px;
-      border-radius:20px;
+      padding:8px 12px;
+      border-radius:14px;
       border:1px solid #ccc;
       outline:none;
       font-size:1rem;
     }
     .input-area button{
-      background:var(--accent);border:none;padding:10px 16px;
-      border-radius:18px;cursor:pointer;font-weight:700;color:#fff;
+      background:var(--accent);
+      border:none;
+      padding:10px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:700;
+      color:#fff;
+      white-space:nowrap;
     }
 
     .footer{
@@ -126,9 +127,12 @@
       background:#D0BEF4;border-top:1px solid #e6e6e6;color:#444;
     }
 
+    /* Mobile fixes */
     @media (max-width:480px){
       .logo{width:120px;}
-      .alias-input{flex:0 0 25%; max-width:100px;}
+      .alias-input{flex:0 0 18%; max-width:70px;}
+      .msg-input{font-size:0.9rem;}
+      .input-area button{padding:8px 12px;font-size:0.9rem;}
     }
   </style>
 </head>
@@ -152,7 +156,7 @@
     <div id="chat" aria-live="polite" role="log"></div>
 
     <div class="input-area">
-      <input id="alias" class="alias-input" type="text" maxlength="12" placeholder="Alias..." value="Anonymous" />
+      <input id="alias" class="alias-input" type="text" maxlength="12" placeholder="Alias..." />
       <input id="msg" class="msg-input" type="text" placeholder="Type a message..." autocomplete="off" enterkeyhint="send" />
       <button id="sendBtn">Send</button>
     </div>
@@ -167,7 +171,7 @@
     row.className = 'message-row ' + (type === 'you' ? 'you' : 'anon');
     const bubble = document.createElement('div');
     bubble.className = 'msg ' + (type === 'you' ? 'you' : 'anon');
-    bubble.innerHTML = `<strong>${alias}:</strong> ${text}`;
+    bubble.innerHTML = `<strong>${alias || "Anonymous"}:</strong> ${text}`;
     row.appendChild(bubble);
     chat.appendChild(row);
     chat.scrollTop = chat.scrollHeight;
