@@ -221,6 +221,7 @@
     <div class="status-bar">
       <span id="statusDot" class="dot disconnected"></span>
       <span id="statusText">Disconnected</span>
+      <span id="onlineCount" style="display:none;"> | 0 online</span>
       <button id="reconnectBtn" class="reconnect-btn">Reconnect</button>
     </div>
 
@@ -252,10 +253,7 @@
     row.className = 'message-row ' + (type === 'you' ? 'you' : 'anon');
     const bubble = document.createElement('div');
     bubble.className = 'msg ' + (type === 'you' ? 'you' : 'anon');
-
-    // Always show "You" on your screen
     const who = (type === 'you') ? "You" : (alias || "Anonymous");
-
     bubble.innerHTML = `<strong>${who}:</strong> ${text}`;
     row.appendChild(bubble);
     chat.appendChild(row);
@@ -269,19 +267,23 @@
     const dot = document.getElementById('statusDot');
     const text = document.getElementById('statusText');
     const btn = document.getElementById('reconnectBtn');
+    const onlineEl = document.getElementById('onlineCount');
     dot.className = 'dot ' + state;
 
     if(state === 'connected'){ 
       text.textContent = 'Connected'; 
       btn.style.display = 'none';
+      onlineEl.style.display = 'inline'; // show when connected
     }
     else if(state === 'connecting'){ 
       text.textContent = 'Connecting...'; 
       btn.style.display = 'none';
+      onlineEl.style.display = 'none';
     }
     else{ 
       text.textContent = 'Disconnected'; 
       btn.style.display = 'inline-block';
+      onlineEl.style.display = 'none';
     }
   }
 
@@ -293,7 +295,13 @@
     ws.addEventListener('message', (ev) => {
       try {
         const msg = JSON.parse(ev.data);
-        addMessage(msg.text, msg.alias, 'anon');
+
+        if (msg.type === "message") {
+          addMessage(msg.text, msg.alias, 'anon');
+        } 
+        else if (msg.type === "onlineCount") {
+          document.getElementById("onlineCount").textContent = ` | ${msg.count} online`;
+        }
       } catch {
         addMessage(String(ev.data), "Anonymous", 'anon');
       }
@@ -303,18 +311,14 @@
   }
 
   connect();
-
   document.getElementById('reconnectBtn').addEventListener('click', connect);
 
   // Popup alias selection
-  const aliasPopup = document.getElementById('aliasPopup');
-  const aliasBtn = document.getElementById('aliasBtn');
-
-  aliasBtn.addEventListener('click', () => {
+  document.getElementById('aliasBtn').addEventListener('click', () => {
     const val = document.getElementById('aliasInput').value.trim();
     if(val){
       userAlias = val;
-      aliasPopup.style.display = "none";
+      document.getElementById('aliasPopup').style.display = "none";
     }
   });
 
@@ -323,10 +327,8 @@
     const text = input.value.trim();
     if (!text) return;
 
-    // Show locally as "You"
     addMessage(text, "You", 'you');
 
-    // Send to others with alias
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({
         alias: userAlias || "Anonymous",
