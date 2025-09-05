@@ -247,12 +247,12 @@
 <script>
   let userAlias = "Anonymous";
 
-  function addMessage(text, alias, type = 'anon') {
+  function addMessage(text, alias, type) {
     const chat = document.getElementById('chat');
     const row = document.createElement('div');
-    row.className = 'message-row ' + (type === 'you' ? 'you' : 'anon');
+    row.className = 'message-row ' + type;
     const bubble = document.createElement('div');
-    bubble.className = 'msg ' + (type === 'you' ? 'you' : 'anon');
+    bubble.className = 'msg ' + type;
     const who = (type === 'you') ? "You" : (alias || "Anonymous");
     bubble.innerHTML = `<strong>${who}:</strong> ${text}`;
     row.appendChild(bubble);
@@ -273,7 +273,7 @@
     if(state === 'connected'){ 
       text.textContent = 'Connected'; 
       btn.style.display = 'none';
-      onlineEl.style.display = 'inline'; // show when connected
+      onlineEl.style.display = 'inline';
     }
     else if(state === 'connecting'){ 
       text.textContent = 'Connecting...'; 
@@ -297,7 +297,12 @@
         const msg = JSON.parse(ev.data);
 
         if (msg.type === "message") {
-          addMessage(msg.text, msg.alias, 'anon');
+          // if it's my alias, show as "You"
+          if (msg.alias === userAlias) {
+            addMessage(msg.text, "You", 'you');
+          } else {
+            addMessage(msg.text, msg.alias, 'anon');
+          }
         } 
         else if (msg.type === "onlineCount") {
           document.getElementById("onlineCount").textContent = ` | ${msg.count} online`;
@@ -327,12 +332,11 @@
     const text = input.value.trim();
     if (!text) return;
 
-    addMessage(text, "You", 'you');
-
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({
         alias: userAlias || "Anonymous",
-        text: text
+        text: text,
+        type: "message"
       }));
     }
 
