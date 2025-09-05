@@ -61,10 +61,13 @@
       align-items: center;
       background: var(--chat-bg);
       gap: 20px;
+      padding: 0 10px; /* 10px padding left and right */
+      box-sizing: border-box;
     }
     video {
-      width: 520px;
-      height: 520px;
+      flex: 1;
+      max-width: 100%;
+      aspect-ratio: 1 / 1;
       object-fit: cover;
       border-radius: 12px;
       background: #000;
@@ -96,6 +99,16 @@
       background: #6d3f9f;
     }
 
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #555;
+      padding: 8px;
+      background: #f8f8f8;
+      border-top: 1px solid #ddd;
+    }
+
     /* 📱 Mobile */
     @media (max-width: 768px) {
       .logo {
@@ -106,9 +119,7 @@
       }
       video {
         width: 100%;
-        max-width: 520px;
-        height: auto;
-        aspect-ratio: 1 / 1;
+        max-width: 100%;
       }
       .btn {
         padding: 8px 14px;
@@ -134,6 +145,11 @@
     <div class="controls">
       <button class="btn" id="toggleMic">Mute Mic</button>
       <button class="btn" id="toggleCam">Turn Off Camera</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      © 2025 ANAR - Privacy First Video Calls
     </div>
   </div>
 
