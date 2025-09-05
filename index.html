@@ -307,7 +307,8 @@
           }
         }
         else if (msg.type === "onlineCount") {
-          document.getElementById("onlineCount").textContent = `${msg.count} 👤`;
+          // Removed the 👤 emoji here
+          document.getElementById("onlineCount").textContent = msg.count;
         }
       } catch {
         addMessage(String(ev.data), "Anonymous", 'anon');
