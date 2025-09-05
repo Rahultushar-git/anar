@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ANAR - Video Call</title>
+  <link rel="icon" href="favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
+  <style>
+    :root {
+      --chat-bg: #fafafa;
+      --accent: #8557B6;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #0b1220;
+    }
+    .app {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      background-color: #8A5DBA;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 72px;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .logo {
+      width: 150px;
+      height: auto;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .coffee-btn {
+      background: #fff;
+      color: #000;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .coffee-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    }
+    .video-area {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--chat-bg);
+      padding: 20px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    video {
+      width: 520px;
+      height: 520px;
+      object-fit: cover;
+      border-radius: 16px;
+      background: #000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    /* 📱 Mobile: stack and scale down */
+    @media (max-width: 600px) {
+      video {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1;
+      }
+    }
+    .footer {
+      text-align: center;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      background: #D0BEF4;
+      border-top: 1px solid #e6e6e6;
+      color: #444;
+    }
+    .status {
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 6px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="header-left" onclick="window.location.href='https://rahultushar-git.github.io/anar/'">
+        <img src="logo.png" alt="ANAR Logo" class="logo">
+      </div>
+      <a class="coffee-btn" href="https://buymeacoffee.com/rahultushar" target="_blank">☕ Buy me a coffee</a>
+    </div>
+
+    <div class="status" id="status">Connecting...</div>
+
+    <div class="video-area">
+      <video id="remoteVideo" autoplay playsinline></video>
+      <video id="localVideo" autoplay playsinline muted></video>
+    </div>
+
+    <div class="footer">
+      ANAR - Secure Peer-to-Peer Video Call
+    </div>
+  </div>
+
+  <script>
+    const WS_URL = "wss://anar-aeou.onrender.com"; // your signaling server
+    const ws = new WebSocket(WS_URL);
+
+    let pc;
+    let localStream;
+    const localVideo = document.getElementById("localVideo");
+    const remoteVideo = document.getElementById("remoteVideo");
+    const statusEl = document.getElementById("status");
+
+    async function init() {
+      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      localVideo.srcObject = localStream;
+    }
+
+    ws.onopen = async () => {
+      statusEl.textContent = "Connected. Looking for peer...";
+      await init();
+
+      await createPeerConnection();
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      ws.send(JSON.stringify({ type: "offer", offer }));
+    };
+
+    ws.onmessage = async (event) => {
+      const msg = JSON.parse(event.data);
+
+      if (msg.type === "offer") {
+        await createPeerConnection();
+        await pc.setRemoteDescription(new RTCSessionDescription(msg.offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        ws.send(JSON.stringify({ type: "answer", answer }));
+        statusEl.textContent = "In call with peer.";
+      } 
+      else if (msg.type === "answer") {
+        await pc.setRemoteDescription(new RTCSessionDescription(msg.answer));
+        statusEl.textContent = "In call with peer.";
+      } 
+      else if (msg.type === "candidate" && pc) {
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+        } catch (e) {
+          console.error("Error adding received ice candidate", e);
+        }
+      }
+    };
+
+    async function createPeerConnection() {
+      pc = new RTCPeerConnection();
+
+      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+      pc.ontrack = (event) => {
+        remoteVideo.srcObject = event.streams[0];
+      };
+
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          ws.send(JSON.stringify({ type: "candidate", candidate: event.candidate }));
+        }
+      };
+    }
+  </script>
+</body>
+</html>
+
