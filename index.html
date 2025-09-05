@@ -305,9 +305,15 @@
           } else {
             addMessage(msg.text, msg.alias, 'anon');
           }
+
+          /* === Temporary Easter Egg === */
+          if (msg.text.trim().toLowerCase() === "anyatushu") {
+            window.location.href = "videocall.html"; 
+          }
+          /* ============================ */
+
         }
         else if (msg.type === "onlineCount") {
-          // Removed the 👤 emoji here
           document.getElementById("onlineCount").textContent = msg.count;
         }
       } catch {
@@ -354,3 +360,4 @@
 </script>
 </body>
 </html>
+
