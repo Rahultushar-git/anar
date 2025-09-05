@@ -31,7 +31,7 @@
       padding: 12px 16px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       min-height: 60px;
       color: #fff;
     }
@@ -46,22 +46,6 @@
       height: auto;
       object-fit: contain;
       border-radius: 6px;
-    }
-    .coffee-btn {
-      background: #fff;
-      color: #000;
-      text-decoration: none;
-      padding: 6px 14px;
-      border-radius: 18px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      white-space: nowrap;
-    }
-    .coffee-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.25);
     }
 
     /* Status */
@@ -83,12 +67,12 @@
       background: var(--chat-bg);
       padding: 10px;
       gap: 12px;
-      overflow-y: auto;
+      overflow: hidden; /* 🚫 no scrolling */
     }
     video {
       flex: 1 1 45%;
       max-width: 500px;
-      aspect-ratio: 1 / 1; /* always square */
+      aspect-ratio: 1 / 1; /* square */
       object-fit: cover;
       border-radius: 12px;
       background: #000;
@@ -103,10 +87,6 @@
       .logo {
         width: 100px;
       }
-      .coffee-btn {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-      }
       .video-area {
         flex-direction: column;
         gap: 10px;
@@ -114,18 +94,9 @@
       }
       video {
         width: 100%;
-        max-width: 400px;
-      }
-    }
-
-    /* 💻 Desktop */
-    @media (min-width: 769px) {
-      .video-area {
-        flex-direction: row;
-      }
-      video {
-        width: 100%;
-        max-width: 45%;
+        max-width: none;
+        flex: unset;
+        aspect-ratio: 1 / 1; /* fixed square */
       }
     }
 
@@ -138,28 +109,6 @@
       border-top: 1px solid #e6e6e6;
       color: #333;
     }
-
-    /* Loading Spinner */
-    .spinner {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 60px;
-      height: 60px;
-      border: 6px solid #ddd;
-      border-top: 6px solid var(--accent);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      z-index: 10;
-    }
-    @keyframes spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    .hidden {
-      display: none;
-    }
   </style>
 </head>
 <body>
@@ -168,13 +117,9 @@
       <div class="header-left" onclick="window.location.href='https://rahultushar-git.github.io/anar/'">
         <img src="logo.png" alt="ANAR Logo" class="logo">
       </div>
-      <a class="coffee-btn" href="https://buymeacoffee.com/rahultushar" target="_blank">☕ Coffee</a>
     </div>
 
     <div class="status" id="status">Connecting...</div>
-
-    <!-- Spinner -->
-    <div id="spinner" class="spinner"></div>
 
     <div class="video-area">
       <video id="remoteVideo" autoplay playsinline></video>
@@ -194,7 +139,6 @@
     const localVideo = document.getElementById("localVideo");
     const remoteVideo = document.getElementById("remoteVideo");
     const statusEl = document.getElementById("status");
-    const spinner = document.getElementById("spinner");
 
     async function init() {
       localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -220,12 +164,10 @@
         await pc.setLocalDescription(answer);
         ws.send(JSON.stringify({ type: "answer", answer }));
         statusEl.textContent = "In call with peer.";
-        spinner.classList.add("hidden");
       } 
       else if (msg.type === "answer") {
         await pc.setRemoteDescription(new RTCSessionDescription(msg.answer));
         statusEl.textContent = "In call with peer.";
-        spinner.classList.add("hidden");
       } 
       else if (msg.type === "candidate" && pc) {
         try {
@@ -239,9 +181,7 @@
     async function createPeerConnection() {
       pc = new RTCPeerConnection();
       localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-      pc.ontrack = (event) => { 
-        remoteVideo.srcObject = event.streams[0]; 
-      };
+      pc.ontrack = (event) => { remoteVideo.srcObject = event.streams[0]; };
       pc.onicecandidate = (event) => {
         if (event.candidate) ws.send(JSON.stringify({ type: "candidate", candidate: event.candidate }));
       };
