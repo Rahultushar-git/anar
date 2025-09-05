@@ -109,7 +109,8 @@ footer::after { width:180px; height:180px; top:-60px; right:-80px; animation-del
 /* Responsive */
 @media(max-width:900px){
   section {flex-direction:column; text-align:center;}
-  .section-text, .section-img {flex:1 1 100%;}
+  .section-text, .section-img {flex:1 1 100%; text-align:center;} /* FIX: center-align text on mobile */
+  .section-text ul, .section-text ol {margin-left:0; padding-left:0; text-align:left;} /* optional: keep lists readable */
   .cta .buttons {flex-direction:column;}
 }
 </style>
@@ -202,4 +203,3 @@ faders.forEach(fader => appearOnScroll.observe(fader));
 
 </body>
 </html>
-
