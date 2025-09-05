@@ -1,9 +1,9 @@
 const WebSocket = require("ws");
 const wss = new WebSocket.Server({ port: 3000 });
 
-function broadcast(data) {
+function broadcast(data, exclude = null) {
   wss.clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
+    if (client !== exclude && client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(data));
     }
   });
@@ -18,7 +18,16 @@ wss.on("connection", (ws) => {
   ws.on("message", (message) => {
     try {
       const data = JSON.parse(message);
-      broadcast({ type: "message", alias: data.alias, text: data.text });
+
+      // Handle WebRTC signaling messages
+      if (["offer", "answer", "candidate"].includes(data.type)) {
+        // Forward signaling messages to other peers (exclude sender)
+        broadcast(data, ws);
+      } 
+      // Handle normal chat messages
+      else if (data.type === "message") {
+        broadcast({ type: "message", alias: data.alias, text: data.text });
+      }
     } catch (err) {
       console.error("Invalid message", err);
     }
@@ -30,3 +39,4 @@ wss.on("connection", (ws) => {
     broadcast({ type: "onlineCount", count: wss.clients.size });
   });
 });
+
