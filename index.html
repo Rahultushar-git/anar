@@ -1,370 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>A New Anonymous Realm</title> 
-  <link rel="icon" href="favicon.png" type="image/png" />
-  <link rel="apple-touch-icon" href="favicon.png" />
-  <style>
-    :root{
-      --chat-bg: #fafafa;
-      --accent: #8557B6;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANAR — Anonymous Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #8557B6;
+  --accent: #FFDD00;
+  --text: #333;
+  --bg: #fafafa;
+  --radius: 12px;
+}
 
-    html,body{height:100%;margin:0;background:#fff;font-family:Arial,Helvetica,sans-serif;color:#0b1220;}
-    .app {height:100vh;display:flex;flex-direction:column;}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:'Quicksand', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height:1.6;
+}
 
-    .header {
-      background-color: #8A5DBA;
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 72px;
-    }
+/* HEADER */
+header {
+  text-align:center;
+  background: var(--primary);
+  color:#fff;
+  padding: 50px 20px;
+}
+header .logo {
+  max-width: 150px;
+  height: auto;
+  margin-bottom: 20px;
+}
+header h1 {
+  font-size:2rem;
+  margin:10px 0;
+}
+header p {
+  font-size:1.1rem;
+  max-width:700px;
+  margin:0 auto;
+  color:#f0e6fa;
+}
 
-    .header-left{ display:flex;align-items:center;gap:12px; }
-    .logo{ width:150px;height:auto;object-fit:contain;border-radius:8px; }
+/* STATUS BAR */
+.status-bar {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:15px;
+  padding:12px 20px;
+  background:#fff;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+  position:sticky;
+  top:0;
+  z-index:1000;
+}
 
-    .coffee-btn{
-      background:#fff;color:#000;text-decoration:none;
-      padding:8px 16px;border-radius:20px;
-      font-weight:600;font-size:0.95rem;
-      box-shadow:0 2px 5px rgba(0,0,0,0.15);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .coffee-btn:hover{
-      transform: translateY(-2px);
-      box-shadow:0 4px 8px rgba(0,0,0,0.25);
-    }
+.dot {
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  display:inline-block;
+}
+.dot.connected { background:#4CAF50; }
+.dot.disconnected { background:#f44336; }
 
-    .desc{ padding:10px 16px;text-align:center;font-size:0.95rem;color:#333;border-bottom:1px solid #eee; }
+#statusText { font-weight:500; font-size:0.9rem; }
 
-    /* === STATUS BAR === */
-    .status-bar{
-      text-align:center;
-      font-size:0.75rem;
-      font-weight:400;
-      margin:6px 0;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:8px;
-    }
-    .dot{
-      display:inline-block;
-      width:8px;height:8px;
-      border-radius:50%;
-      margin-right:4px;
-      transition: background 0.3s ease;
-    }
-    .dot.connected{ background:#2ecc71; }
-    .dot.connecting{ background:#f1c40f; animation: pulse 1s infinite; }
-    .dot.disconnected{ background:#e74c3c; }
+/* Online count styled like a button */
+#onlineCount {
+  display: none;
+  background: #fff;
+  color: #333;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid #ccc;
+  cursor: default;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: background 0.2s ease;
+}
+#onlineCount:hover { background:#f7f7f7; }
 
-    @keyframes pulse {
-      0%,100%{ transform: scale(1); opacity: 0.8; }
-      50%{ transform: scale(1.4); opacity: 1; }
-    }
+.reconnect-btn {
+  background: var(--primary);
+  color:#fff;
+  border:none;
+  padding:6px 14px;
+  border-radius: var(--radius);
+  cursor:pointer;
+  font-size:0.8rem;
+}
+.reconnect-btn:hover { background:#6b3f99; }
 
-    .reconnect-btn {
-      display:none;
-      margin-left:10px;
-      padding:2px 8px;
-      font-size:0.7rem;
-      border:1px solid #ccc;
-      border-radius:10px;
-      background:#fff;
-      cursor:pointer;
-      transition: background 0.2s ease;
-    }
-    .reconnect-btn:hover{ background:#eee; }
-
-    /* Online count badge */
-    #onlineCount {
-      display:none;
-      background: var(--accent);
-      color:#fff;
-      padding:3px 10px;
-      border-radius:20px;
-      font-size:0.75rem;
-      font-weight:600;
-      display:flex;
-      align-items:center;
-      gap:4px;
-    }
-
-    #chat{
-      flex:1;padding:16px;background:var(--chat-bg);
-      overflow-y:auto;display:flex;flex-direction:column;gap:8px;
-    }
-
-    .message-row{ display:flex;width:100%; opacity:0; transform:translateY(10px); animation: fadeInUp 0.3s forwards; }
-    .message-row.you { justify-content:flex-end; }
-    .message-row.anon{ justify-content:flex-start; }
-
-    @keyframes fadeInUp {
-      to { opacity:1; transform:translateY(0); }
-    }
-
-    .msg{
-      max-width:78%;
-      word-break:break-word;
-      border-radius:14px;
-      padding:10px 14px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-      font-size:0.95rem;
-      line-height:1.3;
-    }
-    .msg.you{ background:#D0BEF4; color:#000; }
-    .msg.anon{ background:#8557B6; color:#fff; }
-
-    /* Input area */
-    .input-area{
-      display:flex;
-      gap:6px;
-      padding:10px;
-      border-top:1px solid #e6e6e6;
-      background:#fff;
-      align-items:center;
-    }
-    .msg-input{
-      flex:1;
-      padding:8px 12px;
-      border-radius:14px;
-      border:1px solid #ccc;
-      outline:none;
-      font-size:1rem;
-      transition: border 0.2s ease, box-shadow 0.2s ease;
-    }
-    .msg-input:focus{
-      border-color: var(--accent);
-      box-shadow:0 0 5px rgba(133,87,182,0.4);
-    }
-    .input-area button{
-      background:var(--accent);
-      border:none;
-      padding:10px 14px;
-      border-radius:14px;
-      cursor:pointer;
-      font-weight:700;
-      color:#fff;
-      white-space:nowrap;
-      transition: background 0.2s ease, transform 0.2s ease;
-    }
-    .input-area button:hover{ background:#6b3f99; }
-    .input-area button:active{ transform: scale(0.95); }
-
-    .footer{
-      text-align:center;padding:8px 10px;font-size:0.85rem;
-      background:#D0BEF4;border-top:1px solid #e6e6e6;color:#444;
-    }
-
-    /* Alias Popup */
-    .alias-popup {
-      position: fixed;
-      top:0; left:0;
-      width:100%; height:100%;
-      background:rgba(0,0,0,0.6);
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      z-index:999;
-      animation: fadeIn 0.4s ease;
-    }
-    .alias-box {
-      background:#fff;
-      padding:20px;
-      border-radius:12px;
-      text-align:center;
-      box-shadow:0 4px 10px rgba(0,0,0,0.2);
-      width:300px;
-      max-width:90%;
-      transform: scale(0.9);
-      animation: zoomIn 0.4s ease forwards;
-    }
-    .alias-box h3 {
-      margin:0 0 12px;
-      font-size:1.2rem;
-    }
-    .alias-box input {
-      padding:8px 12px;
-      border:1px solid #ccc;
-      border-radius:8px;
-      margin-top:10px;
-      width:80%;
-      transition: border 0.2s ease, box-shadow 0.2s ease;
-    }
-    .alias-box input:focus {
-      border-color: var(--accent);
-      box-shadow:0 0 5px rgba(133,87,182,0.4);
-      outline:none;
-    }
-    .alias-box button {
-      margin-top:12px;
-      padding:8px 16px;
-      border:none;
-      border-radius:8px;
-      background:var(--accent);
-      color:#fff;
-      cursor:pointer;
-      transition: background 0.2s ease, transform 0.2s ease;
-    }
-    .alias-box button:hover{ background:#6b3f99; }
-    .alias-box button:active{ transform: scale(0.95); }
-
-    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-    @keyframes zoomIn { from{transform:scale(0.9); opacity:0;} to{transform:scale(1); opacity:1;} }
-
-    /* Mobile fixes */
-    @media (max-width:480px){
-      .logo{width:120px;}
-      .msg-input{font-size:0.9rem;}
-      .input-area button{padding:8px 12px;font-size:0.9rem;}
-    }
-  </style>
+/* DEMO PAGE CONTENT */
+main {
+  padding:60px 20px;
+  text-align:center;
+}
+</style>
 </head>
 <body>
-  <div class="app">
-    <div class="header">
-      <div class="header-left">
-        <img src="logo.png" alt="ANAR Logo" class="logo">
-      </div>
-      <a class="coffee-btn" href="https://buymeacoffee.com/rahultushar" target="_blank">☕ Buy me a coffee</a>
-    </div>
-    <div class="desc">Anonymous chat room with no login, no username, and no stored messages. Refresh to clear.</div>
 
-    <!-- STATUS BAR -->
-    <div class="status-bar">
-      <span id="statusDot" class="dot disconnected"></span>
-      <span id="statusText">Disconnected</span>
-      <div id="onlineCount">0 👤</div>
-      <button id="reconnectBtn" class="reconnect-btn">Reconnect</button>
-    </div>
+<header>
+  <img src="logo.png" alt="ANAR Logo" class="logo">
+  <h1>A New Anonymous Realm</h1>
+  <p>Anonymous chat with no login, no usernames, and no stored messages.</p>
+</header>
 
-    <div id="chat" aria-live="polite" role="log"></div>
+<div class="status-bar">
+  <span id="statusDot" class="dot disconnected"></span>
+  <span id="statusText">Disconnected</span>
+  <div id="onlineCount">0 👤</div>
+  <button id="reconnectBtn" class="reconnect-btn">Reconnect</button>
+</div>
 
-    <div class="input-area">
-      <input id="msg" class="msg-input" type="text" placeholder="Type a message..." autocomplete="off" enterkeyhint="send" />
-      <button id="sendBtn">Send</button>
-    </div>
-
-    <div class="footer">Made in 🇮🇳 with ❤️</div>
-  </div>
-
-  <!-- Alias Popup -->
-  <div id="aliasPopup" class="alias-popup">
-    <div class="alias-box">
-      <h3>Choose an Alias</h3>
-      <input id="aliasInput" type="text" maxlength="12" placeholder="Enter alias..." />
-      <button id="aliasBtn">Continue</button>
-    </div>
-  </div>
+<main>
+  <h2>Welcome to ANAR</h2>
+  <p>This is where your anonymous chat app content goes.</p>
+</main>
 
 <script>
-  let userAlias = "Anonymous";
+// Simulated status + online count
+let connected = false;
+const dot = document.getElementById("statusDot");
+const text = document.getElementById("statusText");
+const count = document.getElementById("onlineCount");
+const reconnectBtn = document.getElementById("reconnectBtn");
 
-  function addMessage(text, alias, type) {
-    const chat = document.getElementById('chat');
-    const row = document.createElement('div');
-    row.className = 'message-row ' + type;
-    const bubble = document.createElement('div');
-    bubble.className = 'msg ' + type;
-    const who = (type === 'you') ? "You" : (alias || "Anonymous");
-    bubble.innerHTML = `<strong>${who}:</strong> ${text}`;
-    row.appendChild(bubble);
-    chat.appendChild(row);
-    chat.scrollTop = chat.scrollHeight;
-  }
+function connect() {
+  connected = true;
+  dot.classList.remove("disconnected");
+  dot.classList.add("connected");
+  text.textContent = "Connected";
+  count.style.display = "inline-block";
+  count.textContent = Math.floor(Math.random()*50)+1 + " 👤";
+}
 
-  const WS_URL = 'wss://anar-aeou.onrender.com';
-  let ws;
+function disconnect() {
+  connected = false;
+  dot.classList.remove("connected");
+  dot.classList.add("disconnected");
+  text.textContent = "Disconnected";
+  count.style.display = "none";
+}
 
-  function updateStatus(state){
-    const dot = document.getElementById('statusDot');
-    const text = document.getElementById('statusText');
-    const btn = document.getElementById('reconnectBtn');
-    const onlineEl = document.getElementById('onlineCount');
-    dot.className = 'dot ' + state;
+reconnectBtn.addEventListener("click", () => {
+  if (connected) { disconnect(); }
+  else { connect(); }
+});
 
-    if(state === 'connected'){ 
-      text.textContent = 'Connected'; 
-      btn.style.display = 'none';
-      onlineEl.style.display = 'flex';
-    }
-    else if(state === 'connecting'){ 
-      text.textContent = 'Connecting...'; 
-      btn.style.display = 'none';
-      onlineEl.style.display = 'none';
-    }
-    else{ 
-      text.textContent = 'Disconnected'; 
-      btn.style.display = 'inline-block';
-      onlineEl.style.display = 'none';
-    }
-  }
-
-  function connect() {
-    updateStatus('connecting');
-    ws = new WebSocket(WS_URL);
-
-    ws.addEventListener('open', () => updateStatus('connected'));
-    ws.addEventListener('message', (ev) => {
-      try {
-        const msg = JSON.parse(ev.data);
-
-        if (msg.type === "message") {
-          if (msg.alias === userAlias) {
-            addMessage(msg.text, "You", 'you');
-          } else {
-            addMessage(msg.text, msg.alias, 'anon');
-          }
-        } 
-        else if (msg.type === "onlineCount") {
-          document.getElementById("onlineCount").textContent = `${msg.count} 👤`;
-        }
-      } catch {
-        addMessage(String(ev.data), "Anonymous", 'anon');
-      }
-    });
-    ws.addEventListener('close', () => updateStatus('disconnected'));
-    ws.addEventListener('error', () => updateStatus('disconnected'));
-  }
-
-  connect();
-  document.getElementById('reconnectBtn').addEventListener('click', connect);
-
-  // Popup alias selection
-  document.getElementById('aliasBtn').addEventListener('click', () => {
-    const val = document.getElementById('aliasInput').value.trim();
-    if(val){
-      userAlias = val;
-      document.getElementById('aliasPopup').style.display = "none";
-    }
-  });
-
-  function send() {
-    const input = document.getElementById('msg');
-    const text = input.value.trim();
-    if (!text) return;
-
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({
-        alias: userAlias || "Anonymous",
-        text: text,
-        type: "message"
-      }));
-    }
-
-    input.value = '';
-    input.focus();
-  }
-
-  document.getElementById('sendBtn').addEventListener('click', send);
-  document.getElementById('msg').addEventListener('keydown', (e)=>{
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
-  });
+// auto-connect demo
+setTimeout(connect, 2000);
 </script>
+
 </body>
 </html>
