@@ -37,33 +37,20 @@
       min-height: 60px;
       color: #fff;
     }
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-    }
     .logo {
       width: 120px;
       height: auto;
-      object-fit: contain;
       border-radius: 6px;
     }
     .coffee-btn {
       background: #fff;
       color: #000;
-      text-decoration: none;
       padding: 6px 14px;
       border-radius: 18px;
       font-weight: 600;
       font-size: 0.85rem;
       box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
       white-space: nowrap;
-    }
-    .coffee-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.25);
     }
 
     /* Status */
@@ -76,7 +63,7 @@
       border-bottom: 1px solid #e5e5e5;
     }
 
-    /* Video area */
+    /* Video area: always side by side */
     .video-area {
       flex: 1;
       display: flex;
@@ -84,42 +71,26 @@
       align-items: center;
       background: var(--chat-bg);
       padding: 10px;
-      gap: 12px;
-      flex-wrap: wrap;
-      overflow-y: auto;
+      gap: 10px;
     }
     video {
-      flex: 1 1 45%;
-      max-width: 500px;
-      aspect-ratio: 1 / 1;
+      flex: 1 1 50%;
+      aspect-ratio: 1 / 1;   /* square */
+      max-width: 100%;
       object-fit: cover;
       border-radius: 12px;
       background: #000;
       box-shadow: 0 3px 8px rgba(0,0,0,0.25);
     }
 
-    /* 📱 Mobile-first */
+    /* No stacking on mobile — keep row layout */
     @media (max-width: 768px) {
       .video-area {
-        flex-direction: column;
-        gap: 10px;
-        padding: 8px;
+        flex-direction: row;
       }
       video {
-        width: 100%;
-        flex: unset;
-        aspect-ratio: 9 / 16;
+        width: 50%;
       }
-    }
-
-    /* Footer */
-    .footer {
-      text-align: center;
-      padding: 10px;
-      font-size: 0.8rem;
-      background: #D0BEF4;
-      border-top: 1px solid #e6e6e6;
-      color: #333;
     }
 
     /* Floating Control Bar */
@@ -144,26 +115,26 @@
       cursor: pointer;
       box-shadow: 0 3px 8px rgba(0,0,0,0.25);
       background: #fff;
-      transition: background 0.2s;
-    }
-    .control-btn:hover {
-      background: #eee;
     }
     .end-btn {
       background: var(--danger);
       color: #fff;
     }
-    .end-btn:hover {
-      background: #c81d25;
+
+    .footer {
+      text-align: center;
+      padding: 10px;
+      font-size: 0.8rem;
+      background: #D0BEF4;
+      border-top: 1px solid #e6e6e6;
+      color: #333;
     }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="header">
-      <div class="header-left" onclick="window.location.href='https://rahultushar-git.github.io/anar/'">
-        <img src="logo.png" alt="ANAR Logo" class="logo">
-      </div>
+      <img src="logo.png" alt="ANAR Logo" class="logo" onclick="window.location.href='https://rahultushar-git.github.io/anar/'">
       <a class="coffee-btn" href="https://buymeacoffee.com/rahultushar" target="_blank">☕ Coffee</a>
     </div>
 
@@ -195,7 +166,6 @@
     const remoteVideo = document.getElementById("remoteVideo");
     const statusEl = document.getElementById("status");
 
-    // Buttons
     const micBtn = document.getElementById("micBtn");
     const camBtn = document.getElementById("camBtn");
     const endBtn = document.getElementById("endBtn");
