@@ -44,15 +44,19 @@
     /* === STATUS BAR === */
     .status-bar{
       text-align:center;
-      font-size:0.7rem;
-      font-weight:300;
-      margin:4px 0;
+      font-size:0.75rem;
+      font-weight:400;
+      margin:6px 0;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
     }
     .dot{
       display:inline-block;
       width:8px;height:8px;
       border-radius:50%;
-      margin-right:6px;
+      margin-right:4px;
       transition: background 0.3s ease;
     }
     .dot.connected{ background:#2ecc71; }
@@ -76,6 +80,20 @@
       transition: background 0.2s ease;
     }
     .reconnect-btn:hover{ background:#eee; }
+
+    /* Online count badge */
+    #onlineCount {
+      display:none;
+      background: var(--accent);
+      color:#fff;
+      padding:3px 10px;
+      border-radius:20px;
+      font-size:0.75rem;
+      font-weight:600;
+      display:flex;
+      align-items:center;
+      gap:4px;
+    }
 
     #chat{
       flex:1;padding:16px;background:var(--chat-bg);
@@ -221,7 +239,7 @@
     <div class="status-bar">
       <span id="statusDot" class="dot disconnected"></span>
       <span id="statusText">Disconnected</span>
-      <span id="onlineCount" style="display:none;"> | 0 online</span>
+      <div id="onlineCount">0 👤</div>
       <button id="reconnectBtn" class="reconnect-btn">Reconnect</button>
     </div>
 
@@ -273,7 +291,7 @@
     if(state === 'connected'){ 
       text.textContent = 'Connected'; 
       btn.style.display = 'none';
-      onlineEl.style.display = 'inline';
+      onlineEl.style.display = 'flex';
     }
     else if(state === 'connecting'){ 
       text.textContent = 'Connecting...'; 
@@ -297,7 +315,6 @@
         const msg = JSON.parse(ev.data);
 
         if (msg.type === "message") {
-          // if it's my alias, show as "You"
           if (msg.alias === userAlias) {
             addMessage(msg.text, "You", 'you');
           } else {
@@ -305,7 +322,7 @@
           }
         } 
         else if (msg.type === "onlineCount") {
-          document.getElementById("onlineCount").textContent = ` | ${msg.count} online`;
+          document.getElementById("onlineCount").textContent = `${msg.count} 👤`;
         }
       } catch {
         addMessage(String(ev.data), "Anonymous", 'anon');
