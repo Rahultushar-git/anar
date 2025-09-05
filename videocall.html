@@ -57,16 +57,16 @@
     .video-area {
       flex: 1;
       display: flex;
+      flex-direction: column; /* always stack vertically */
       justify-content: center;
       align-items: center;
       background: var(--chat-bg);
       padding: 10px;
       gap: 12px;
-      overflow: hidden;
-      flex-wrap: wrap;
+      overflow-y: auto;
     }
     video {
-      flex: 1 1 45%;
+      width: 100%;
       max-width: 500px;
       aspect-ratio: 1 / 1; /* perfect square */
       object-fit: cover;
@@ -105,14 +105,8 @@
       .logo {
         width: 110px;
       }
-      .video-area {
-        flex-direction: column;
-      }
       video {
-        width: 100%;
         max-width: none;
-        flex: unset;
-        aspect-ratio: 1 / 1; /* keep square */
       }
       .btn {
         padding: 8px 14px;
