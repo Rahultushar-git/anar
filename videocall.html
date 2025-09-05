@@ -10,6 +10,7 @@
     :root {
       --chat-bg: #fafafa;
       --accent: #8557B6;
+      --footer-bg: #f3e8ff; /* light purple */
     }
     html, body {
       height: 100%;
@@ -31,7 +32,7 @@
       padding: 12px 16px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between; /* logo left, button right */
       min-height: 60px;
       color: #fff;
     }
@@ -41,6 +42,27 @@
       object-fit: contain;
       border-radius: 6px;
       cursor: pointer;
+    }
+    .coffee-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 800; /* bolder text */
+      border: none;
+      border-radius: 24px; /* pill shape */
+      padding: 8px 16px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease, background 0.2s ease;
+      white-space: nowrap;
+    }
+    .coffee-btn:hover {
+      transform: scale(1.05);
+      background: #f3e8ff;
     }
 
     /* Status */
@@ -61,7 +83,7 @@
       align-items: center;
       background: var(--chat-bg);
       gap: 20px;
-      padding: 0 10px; /* 10px padding left and right */
+      padding: 0 10px;
       box-sizing: border-box;
     }
     video {
@@ -105,7 +127,7 @@
       font-size: 0.85rem;
       color: #555;
       padding: 8px;
-      background: #f8f8f8;
+      background: var(--footer-bg);
       border-top: 1px solid #ddd;
     }
 
@@ -115,7 +137,7 @@
         width: 110px;
       }
       .video-area {
-        flex-direction: column; /* stack vertically */
+        flex-direction: column;
       }
       video {
         width: 100%;
@@ -126,16 +148,31 @@
         font-size: 0.85rem;
       }
     }
+
+    /* 💻 Desktop */
+    @media (min-width: 769px) {
+      .video-area {
+        flex-direction: row;
+      }
+      video {
+        width: 100%;
+        max-width: 50%;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="app">
+    <!-- Header -->
     <div class="header">
       <img src="logo.png" alt="ANAR Logo" class="logo" onclick="window.location.href='https://rahultushar-git.github.io/anar/'">
+      <a href="https://www.buymeacoffee.com/rahultushar" target="_blank" class="coffee-btn">☕ Buy me a coffee</a>
     </div>
 
+    <!-- Status -->
     <div class="status" id="status">Connecting...</div>
 
+    <!-- Video area -->
     <div class="video-area">
       <video id="remoteVideo" autoplay playsinline></video>
       <video id="localVideo" autoplay playsinline muted></video>
@@ -149,7 +186,7 @@
 
     <!-- Footer -->
     <div class="footer">
-      © 2025 ANAR - Privacy First Video Calls
+      © 2025 ANAR - Easter egg
     </div>
   </div>
 
@@ -231,3 +268,4 @@
   </script>
 </body>
 </html>
+
