@@ -33,7 +33,7 @@
       padding: 12px 16px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       min-height: 60px;
       color: #fff;
     }
@@ -41,16 +41,7 @@
       width: 120px;
       height: auto;
       border-radius: 6px;
-    }
-    .coffee-btn {
-      background: #fff;
-      color: #000;
-      padding: 6px 14px;
-      border-radius: 18px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-      white-space: nowrap;
+      cursor: pointer;
     }
 
     /* Status */
@@ -63,40 +54,31 @@
       border-bottom: 1px solid #e5e5e5;
     }
 
-    /* Video area: always side by side */
+    /* Video area: stacked vertically */
     .video-area {
       flex: 1;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
       background: var(--chat-bg);
       padding: 10px;
       gap: 10px;
     }
     video {
-      flex: 1 1 50%;
-      aspect-ratio: 1 / 1;   /* square */
-      max-width: 100%;
+      width: 100%;
+      max-width: 500px;
+      aspect-ratio: 1 / 1;  /* square */
       object-fit: cover;
       border-radius: 12px;
       background: #000;
       box-shadow: 0 3px 8px rgba(0,0,0,0.25);
     }
 
-    /* No stacking on mobile — keep row layout */
-    @media (max-width: 768px) {
-      .video-area {
-        flex-direction: row;
-      }
-      video {
-        width: 50%;
-      }
-    }
-
     /* Floating Control Bar */
     .controls {
       position: absolute;
-      bottom: 70px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -120,22 +102,12 @@
       background: var(--danger);
       color: #fff;
     }
-
-    .footer {
-      text-align: center;
-      padding: 10px;
-      font-size: 0.8rem;
-      background: #D0BEF4;
-      border-top: 1px solid #e6e6e6;
-      color: #333;
-    }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="header">
       <img src="logo.png" alt="ANAR Logo" class="logo" onclick="window.location.href='https://rahultushar-git.github.io/anar/'">
-      <a class="coffee-btn" href="https://buymeacoffee.com/rahultushar" target="_blank">☕ Coffee</a>
     </div>
 
     <div class="status" id="status">Connecting...</div>
@@ -150,10 +122,6 @@
       <button class="control-btn" id="micBtn">🎤</button>
       <button class="control-btn" id="camBtn">📷</button>
       <button class="control-btn end-btn" id="endBtn">✖</button>
-    </div>
-
-    <div class="footer">
-      ANAR - Secure Peer-to-Peer Video Call
     </div>
   </div>
 
