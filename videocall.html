@@ -83,13 +83,12 @@
       background: var(--chat-bg);
       padding: 10px;
       gap: 12px;
-      flex-wrap: wrap;
       overflow-y: auto;
     }
     video {
       flex: 1 1 45%;
       max-width: 500px;
-      aspect-ratio: 1 / 1;
+      aspect-ratio: 1 / 1; /* always square */
       object-fit: cover;
       border-radius: 12px;
       background: #000;
@@ -115,8 +114,18 @@
       }
       video {
         width: 100%;
-        flex: unset;
-        aspect-ratio: 9 / 16; /* vertical video feel */
+        max-width: 400px;
+      }
+    }
+
+    /* 💻 Desktop */
+    @media (min-width: 769px) {
+      .video-area {
+        flex-direction: row;
+      }
+      video {
+        width: 100%;
+        max-width: 45%;
       }
     }
 
@@ -128,6 +137,28 @@
       background: #D0BEF4;
       border-top: 1px solid #e6e6e6;
       color: #333;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      border: 6px solid #ddd;
+      border-top: 6px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      z-index: 10;
+    }
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    .hidden {
+      display: none;
     }
   </style>
 </head>
@@ -141,6 +172,9 @@
     </div>
 
     <div class="status" id="status">Connecting...</div>
+
+    <!-- Spinner -->
+    <div id="spinner" class="spinner"></div>
 
     <div class="video-area">
       <video id="remoteVideo" autoplay playsinline></video>
@@ -160,6 +194,7 @@
     const localVideo = document.getElementById("localVideo");
     const remoteVideo = document.getElementById("remoteVideo");
     const statusEl = document.getElementById("status");
+    const spinner = document.getElementById("spinner");
 
     async function init() {
       localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -185,10 +220,12 @@
         await pc.setLocalDescription(answer);
         ws.send(JSON.stringify({ type: "answer", answer }));
         statusEl.textContent = "In call with peer.";
+        spinner.classList.add("hidden");
       } 
       else if (msg.type === "answer") {
         await pc.setRemoteDescription(new RTCSessionDescription(msg.answer));
         statusEl.textContent = "In call with peer.";
+        spinner.classList.add("hidden");
       } 
       else if (msg.type === "candidate" && pc) {
         try {
@@ -202,7 +239,9 @@
     async function createPeerConnection() {
       pc = new RTCPeerConnection();
       localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-      pc.ontrack = (event) => { remoteVideo.srcObject = event.streams[0]; };
+      pc.ontrack = (event) => { 
+        remoteVideo.srcObject = event.streams[0]; 
+      };
       pc.onicecandidate = (event) => {
         if (event.candidate) ws.send(JSON.stringify({ type: "candidate", candidate: event.candidate }));
       };
@@ -210,4 +249,3 @@
   </script>
 </body>
 </html>
-
