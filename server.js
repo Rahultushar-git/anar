@@ -1,6 +1,9 @@
 const WebSocket = require("ws");
 const wss = new WebSocket.Server({ port: 3000 });
 
+// Store last 20 chat messages
+let messageHistory = [];
+
 function broadcast(data, exclude = null) {
   wss.clients.forEach(client => {
     if (client !== exclude && client.readyState === WebSocket.OPEN) {
@@ -12,21 +15,34 @@ function broadcast(data, exclude = null) {
 wss.on("connection", (ws) => {
   console.log("New client connected");
 
-  // Broadcast online count when someone connects
+  // Send chat history to the new client
+  if (messageHistory.length > 0) {
+    ws.send(JSON.stringify({ type: "history", messages: messageHistory }));
+  }
+
+  // Broadcast online count
   broadcast({ type: "onlineCount", count: wss.clients.size });
 
   ws.on("message", (message) => {
     try {
       const data = JSON.parse(message);
 
-      // Handle WebRTC signaling messages
+      // Handle WebRTC signaling
       if (["offer", "answer", "candidate"].includes(data.type)) {
-        // Forward signaling messages to other peers (exclude sender)
         broadcast(data, ws);
       } 
-      // Handle normal chat messages
+      // Handle chat messages
       else if (data.type === "message") {
-        broadcast({ type: "message", alias: data.alias, text: data.text });
+        const chatMsg = { type: "message", alias: data.alias, text: data.text };
+
+        // Save to history
+        messageHistory.push(chatMsg);
+        if (messageHistory.length > 20) {
+          messageHistory.shift(); // keep only last 20
+        }
+
+        // Broadcast message
+        broadcast(chatMsg);
       }
     } catch (err) {
       console.error("Invalid message", err);
@@ -35,8 +51,6 @@ wss.on("connection", (ws) => {
 
   ws.on("close", () => {
     console.log("Client disconnected");
-    // Broadcast updated online count
     broadcast({ type: "onlineCount", count: wss.clients.size });
   });
 });
-
