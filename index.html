@@ -305,13 +305,6 @@
           } else {
             addMessage(msg.text, msg.alias, 'anon');
           }
-
-          /* === Temporary Easter Egg === */
-          if (msg.text.trim().toLowerCase() === "anyatushu") {
-            window.location.href = "videocall.html"; 
-          }
-          /* ============================ */
-
         }
         else if (msg.type === "onlineCount") {
           document.getElementById("onlineCount").textContent = msg.count;
@@ -341,6 +334,13 @@
     const text = input.value.trim();
     if (!text) return;
 
+    // 🔑 Easter egg check only for the sender
+    const lower = text.toLowerCase();
+    if (lower === "anyatushu" || lower === "ripomegle") {
+      window.location.href = "videocall.html";
+      return; // stop here, don’t send to server
+    }
+
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({
         alias: userAlias || "Anonymous",
@@ -360,4 +360,3 @@
 </script>
 </body>
 </html>
-
