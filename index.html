@@ -140,8 +140,11 @@
           const msg = JSON.parse(ev.data);  
 
           if(msg.type === "message") {  
-            const type = (msg.alias === userAlias) ? 'you' : 'anon';  
-            addMessage(msg.text, msg.alias, type);  
+            if(msg.alias === userAlias) {  
+              addMessage(msg.text, "You", 'you');  
+            } else {  
+              addMessage(msg.text, msg.alias, 'anon');  
+            }  
           }  
           else if(msg.type === "onlineCount") {  
             document.getElementById("onlineCount").textContent = msg.count;  
@@ -179,7 +182,7 @@
       const text = input.value.trim();  
       if (!text) return;  
 
-      // 🔑 Easter egg check  
+      // 🔑 Easter egg check (case-sensitive)  
       if (text === "!RipOmegle") {  
         window.location.href = "videocall.html";  
         return;  
@@ -203,4 +206,4 @@
     });  
   </script>
 </body>
-</html>
+</html>    if i reconnect i am seing my messeges as a reciever of message, build a system where if i CHoose same alias again with same cap and small letter, all of the messages will be shown to my side i.e right chat bubble, send me full code implementing on this code
