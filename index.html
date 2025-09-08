@@ -140,11 +140,8 @@
           const msg = JSON.parse(ev.data);  
 
           if(msg.type === "message") {  
-            if(msg.alias === userAlias) {  
-              addMessage(msg.text, "You", 'you');  
-            } else {  
-              addMessage(msg.text, msg.alias, 'anon');  
-            }  
+            const type = (msg.alias === userAlias) ? 'you' : 'anon';  
+            addMessage(msg.text, msg.alias, type);  
           }  
           else if(msg.type === "onlineCount") {  
             document.getElementById("onlineCount").textContent = msg.count;  
@@ -182,7 +179,7 @@
       const text = input.value.trim();  
       if (!text) return;  
 
-      // 🔑 Easter egg check (case-sensitive)  
+      // 🔑 Easter egg check  
       if (text === "!RipOmegle") {  
         window.location.href = "videocall.html";  
         return;  
