@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://rahultushar-git.github.io/anar/sitemap.xml
